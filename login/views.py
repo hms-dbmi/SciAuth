@@ -1,4 +1,7 @@
-def login(request, template_name='login/login.html'):
+from django.shortcuts import render
+
+
+def auth(request):
     if request.user.is_authenticated():
         return redirect('/login/dashboard/')
 
@@ -8,5 +11,6 @@ def login(request, template_name='login/login.html'):
     #     "AUTH0_DOMAIN": settings.AUTH0_DOMAIN,
     #     "AUTH0_CALLBACK_URL": settings.AUTH0_CALLBACK_URL,
     # }
-#, {'auth0info': auth0info}
-    return render_to_response('login/login.html', context_instance=RequestContext(request))
+    # , {'auth0info': auth0info}
+
+    return render(request, 'login/auth.html')

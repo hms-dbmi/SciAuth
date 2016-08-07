@@ -1,7 +1,8 @@
 from django.conf.urls import url
+from . import views
 
 urlpatterns = [
-    url(r'^auth/$', 'auth', {'template_name': 'login/auth.html'}, name='auth')
+    url(r'^auth/$', views.auth,  name='auth')
 ]
 
 

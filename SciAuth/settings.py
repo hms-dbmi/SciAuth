@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'login',
+    'stronghold'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -51,9 +52,12 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'stronghold.middleware.LoginRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'SciAuth.urls'
+
+LOGIN_URL = '/login/auth/'
 
 TEMPLATES = [
     {

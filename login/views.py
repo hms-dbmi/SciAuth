@@ -1,9 +1,11 @@
 from django.shortcuts import render
+from stronghold.decorators import public
 
 
+@public
 def auth(request):
     if request.user.is_authenticated():
-        return redirect('/login/dashboard/')
+        return redirect('/login/landingPage/')
 
     # auth0info = {
     #     "AUTH0_CLIENT_ID": settings.AUTH0_CLIENT_ID,
@@ -14,3 +16,8 @@ def auth(request):
     # , {'auth0info': auth0info}
 
     return render(request, 'login/auth.html')
+
+
+def landingpage(request):
+    return render(request,'login/landingpage.html')
+

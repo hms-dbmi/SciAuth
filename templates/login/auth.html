@@ -7,16 +7,18 @@
     <script type="text/javascript">
       var lock = new Auth0Lock('y16slzzzDr9jKhEHsZZmKYskQdJKoMFm', 'mtmcduffie.auth0.com', {
         auth: {
-          redirectUrl: '',
+          redirectUrl: 'http://localhost:8000/login/callback_handling/',
           responseType: 'code',
           params: {
             scope: 'openid email' // Learn about scopes: https://auth0.com/docs/scopes
           }
         }
       });
+
+        lock.show();
     </script>
     </head>
     <body>
-        <button onclick="lock.show();">Login</button>
+        <p>SciAuth</p>
     </body>
 </html>

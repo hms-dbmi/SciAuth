@@ -2,7 +2,7 @@
 
 This Django app is a simple implementation of the Auth0 integration.
 
-View README.rst for full install instructions.
+View [README](README.rst) for full install instructions.
 
 In order to build this package you'll need to install setuptools (usually a default package):
 

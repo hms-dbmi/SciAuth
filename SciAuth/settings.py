@@ -57,12 +57,10 @@ MIDDLEWARE_CLASSES = [
 
 ROOT_URLCONF = 'SciAuth.urls'
 
-LOGIN_URL = '/login/auth/'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [normpath(join(BASE_DIR, 'templates'))],
+        'DIRS': [normpath(join(BASE_DIR, 'login', 'templates'))],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -107,11 +105,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH0_DOMAIN = ''
-AUTH0_CLIENT_ID = ''
-AUTH0_SECRET = ''
-AUTH0_CALLBACK_URL = ''
-AUTH0_SUCCESS_URL = ''
+LOGIN_URL = '/login/auth/'
+
 
 AUTHENTICATION_BACKENDS = ('login.auth0authenticate.Auth0Authentication', 'django.contrib.auth.backends.ModelBackend')
 

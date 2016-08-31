@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from stronghold.decorators import public
 from django.conf import settings
 from django.http import HttpResponse
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.contrib import auth as django_auth
 
 import requests
@@ -12,15 +12,8 @@ import json
 @public
 def auth(request):
     if request.user.is_authenticated():
-        return redirect('/login/landingPage/')
-
-    # auth0info = {
-    #     "AUTH0_CLIENT_ID": settings.AUTH0_CLIENT_ID,
-    #     "AUTH0_CLIENT_SECRET": settings.AUTH0_CLIENT_SECRET,
-    #     "AUTH0_DOMAIN": settings.AUTH0_DOMAIN,
-    #     "AUTH0_CALLBACK_URL": settings.AUTH0_CALLBACK_URL,
-    # }
-    # , {'auth0info': auth0info}
+        redirect_url = request.GET.get("next", settings.AUTH0_SUCCESS_URL)
+        return redirect(redirect_url)
 
     return render(request, 'login/auth.html')
 
@@ -59,7 +52,8 @@ def callback_handling(request):
 
     if user:
         login(request, user)
-        return redirect(config['AUTH0_SUCCESS_URL'])
+        redirect_url = request.GET.get("next", settings.AUTH0_SUCCESS_URL)
+        return redirect(redirect_url)
 
     return HttpResponse(status=400)
 
@@ -74,6 +68,11 @@ def get_config():
         'AUTH0_SUCCESS_URL': settings.AUTH0_SUCCESS_URL,
     }
 
+
 def landingpage(request):
     return render(request, 'login/landingpage.html')
 
+
+def logout_view(request):
+    logout(request)
+    return redirect(settings.AUTH0_LOGOUT_URL)

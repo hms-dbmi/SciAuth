@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '=b85c)1_(mtz%0jy2*00e=%h=bcn&u05*%1-cx*-5j_hp*d-&^'
+SECRET_KEY = os.environ["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -106,7 +106,12 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LOGIN_URL = '/login/auth/'
-
+AUTH0_DOMAIN = os.environ["AUTH0_DOMAIN"]
+AUTH0_CLIENT_ID = os.environ["AUTH0_CLIENT_ID"]
+AUTH0_SECRET = os.environ["AUTH0_SECRET"]
+AUTH0_CALLBACK_URL = os.environ["AUTH0_CALLBACK_URL"]
+AUTH0_SUCCESS_URL = os.environ["AUTH0_SUCCESS_URL"]
+AUTH0_LOGOUT_URL = os.environ["AUTH0_LOGOUT_URL"]
 
 AUTHENTICATION_BACKENDS = ('login.auth0authenticate.Auth0Authentication', 'django.contrib.auth.backends.ModelBackend')
 
@@ -128,3 +133,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static")]

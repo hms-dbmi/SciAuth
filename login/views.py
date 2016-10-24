@@ -15,7 +15,7 @@ def auth(request):
         redirect_url = request.GET.get("next", settings.AUTH0_SUCCESS_URL)
         return redirect(redirect_url)
 
-    return render(request, 'login/auth.html')
+    return render(request, 'login/auth.html', {'auth0_callback_url': settings.AUTH0_CALLBACK_URL})
 
 @public
 def callback_handling(request):

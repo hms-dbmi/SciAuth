@@ -59,7 +59,7 @@
 <script type="text/javascript">
     var lock = new Auth0Lock('y16slzzzDr9jKhEHsZZmKYskQdJKoMFm', 'mtmcduffie.auth0.com', {
         auth: {
-            redirectUrl: 'http://localhost:8000/login/callback_handling/?{{ request.GET.urlencode }}',
+            redirectUrl: '{{ auth0_callback_url }}?{{ request.GET.urlencode }}',
             responseType: 'code',
             params: {
                 scope: 'openid email' // Learn about scopes: https://auth0.com/docs/scopes

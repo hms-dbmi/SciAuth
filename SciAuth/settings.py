@@ -140,7 +140,7 @@ SITE_ROOT = dirname(DJANGO_ROOT)
 
 ########## STATIC FILE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#static-root
-STATIC_ROOT = normpath(join(SITE_ROOT, 'sciauth-app', 'assets'))
+STATIC_ROOT = normpath(join(SITE_ROOT, 'SciAuth', 'assets'))
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#static-url
 STATIC_URL = '/static/'

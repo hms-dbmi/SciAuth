@@ -115,6 +115,8 @@ AUTH0_LOGOUT_URL = os.environ["AUTH0_LOGOUT_URL"]
 
 AUTHENTICATION_BACKENDS = ('login.auth0authenticate.Auth0Authentication', 'django.contrib.auth.backends.ModelBackend')
 
+COOKIE_DOMAIN = ".dbmi.hms.harvard.edu"
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 

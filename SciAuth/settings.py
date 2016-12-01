@@ -147,7 +147,7 @@ SITE_ROOT = dirname(DJANGO_ROOT)
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#static-root
 # THIS IS WHERE FILES ARE COLLECTED INTO.
 STATIC_ROOT = normpath(join(SITE_ROOT, 'SciAuth', 'assets'))
-print(STATIC_ROOT)
+
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#static-url
 STATIC_URL = '/static/'
 
@@ -156,8 +156,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     normpath(join(SITE_ROOT, 'SciAuth', 'static')),
 )
-
-print(STATICFILES_DIRS)
 
 # See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
 STATICFILES_FINDERS = (

@@ -145,18 +145,25 @@ SITE_ROOT = dirname(DJANGO_ROOT)
 
 ########## STATIC FILE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#static-root
-STATIC_ROOT = normpath(join(SITE_ROOT, 'SciAuth', 'static'))
-
+# THIS IS WHERE FILES ARE COLLECTED INTO.
+STATIC_ROOT = normpath(join(SITE_ROOT, 'SciAuth', 'assets'))
+print(STATIC_ROOT)
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#static-url
 STATIC_URL = '/static/'
+
+# THIS IS WHERE FILES ARE COLLECTED FROM
+# See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
+STATICFILES_DIRS = (
+    normpath(join(SITE_ROOT, 'SciAuth', 'static')),
+)
+
+print(STATICFILES_DIRS)
 
 # See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
-
-print(STATIC_ROOT)
 
 try:
     from .local_settings import *

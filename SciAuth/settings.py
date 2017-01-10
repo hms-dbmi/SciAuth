@@ -30,10 +30,6 @@ SECRET_KEY = os.environ.get("SECRET_KEY", get_random_string(50, chars))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['authentication.aws.dbmi.hms.harvard.edu']
-
-ADMIN = [('SITE-ADMIN', os.environ.get("SITE_ADMIN"))]
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -79,7 +75,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'SciAuth.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
@@ -89,10 +84,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -109,17 +100,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LOGIN_URL = '/login/auth'
-AUTH0_DOMAIN = os.environ.get("AUTH0_DOMAIN")
-AUTH0_CLIENT_ID = os.environ.get("AUTH0_CLIENT_ID")
-AUTH0_SECRET = os.environ.get("AUTH0_SECRET")
-AUTH0_CALLBACK_URL = os.environ.get("AUTH0_CALLBACK_URL")
-AUTH0_SUCCESS_URL = os.environ.get("AUTH0_SUCCESS_URL")
-AUTH0_LOGOUT_URL = os.environ.get("AUTH0_LOGOUT_URL")
 
-AUTHENTICATION_BACKENDS = ('login.auth0authenticate.Auth0Authentication', 'django.contrib.auth.backends.ModelBackend')
-
-COOKIE_DOMAIN = ".dbmi.hms.harvard.edu"
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
@@ -135,34 +116,44 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Absolute filesystem path to the Django project directory:
+##########
+# STATIC FILE CONFIGURATION
 DJANGO_ROOT = dirname(dirname(abspath(__file__)))
-
-# Absolute filesystem path to the top-level project folder:
 SITE_ROOT = dirname(DJANGO_ROOT)
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.10/howto/static-files/
-
-########## STATIC FILE CONFIGURATION
-# See: https://docs.djangoproject.com/en/dev/ref/settings/#static-root
 # THIS IS WHERE FILES ARE COLLECTED INTO.
 STATIC_ROOT = normpath(join(SITE_ROOT, 'SciAuth', 'assets'))
-
-# See: https://docs.djangoproject.com/en/dev/ref/settings/#static-url
 STATIC_URL = '/static/'
 
 # THIS IS WHERE FILES ARE COLLECTED FROM
-# See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
 STATICFILES_DIRS = (
     normpath(join(SITE_ROOT, 'SciAuth', 'static')),
 )
 
-# See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
+##########
+
+##########
+# App Specific
+LOGIN_URL = '/login/auth'
+AUTH0_DOMAIN = os.environ.get("AUTH0_DOMAIN")
+AUTH0_CLIENT_ID = os.environ.get("AUTH0_CLIENT_ID")
+AUTH0_SECRET = os.environ.get("AUTH0_SECRET")
+AUTH0_CALLBACK_URL = os.environ.get("AUTH0_CALLBACK_URL")
+AUTH0_SUCCESS_URL = os.environ.get("AUTH0_SUCCESS_URL")
+AUTH0_LOGOUT_URL = os.environ.get("AUTH0_LOGOUT_URL")
+
+AUTHENTICATION_BACKENDS = ('login.auth0authenticate.Auth0Authentication', 'django.contrib.auth.backends.ModelBackend')
+
+COOKIE_DOMAIN = ".dbmi.hms.harvard.edu"
+
+ALLOWED_HOSTS = ['authentication.aws.dbmi.hms.harvard.edu']
+
+ADMIN = [('SITE-ADMIN', os.environ.get("SITE_ADMIN"))]
+
+##########
 
 try:
     from .local_settings import *

@@ -11,7 +11,7 @@ import json
 
 @public
 def auth(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated() and request.COOKIES.get("DBMI_JWT", None) is not None:
         redirect_url = request.GET.get("next", settings.AUTH0_SUCCESS_URL)
         return redirect(redirect_url)
 
@@ -58,6 +58,7 @@ def callback_handling(request):
         return response
 
     return HttpResponse(status=400)
+
 
 def landingpage(request):
     return render(request, 'login/landingpage.html')

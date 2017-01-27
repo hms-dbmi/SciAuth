@@ -1,4 +1,6 @@
 from django.contrib.auth.models import User
+import logging
+logger = logging.getLogger(__name__)
 
 
 class Auth0Authentication(object):
@@ -11,12 +13,12 @@ class Auth0Authentication(object):
         :return:
         """
 
-        print("Attempting to Authenticate User - " + token_dictionary["email"])
+        logger.info("Attempting to Authenticate User - " + token_dictionary["email"])
 
         try:
             user = User.objects.get(username=token_dictionary["email"])
         except User.DoesNotExist:
-            print("User not found, creating.")
+            logger.info("User not found, creating.")
 
             user = User(username=token_dictionary["email"], email=token_dictionary["email"])
             user.is_staff = True

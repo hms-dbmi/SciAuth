@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+import sys
 
 from os.path import normpath, join, dirname, abspath
 from django.utils.crypto import get_random_string
@@ -80,8 +81,12 @@ WSGI_APPLICATION = 'SciAuth.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'sciauth',
+        'USER': os.environ.get("MYSQL_USERNAME"),
+        'PASSWORD': os.environ.get("MYSQL_PASSWORD"),
+        'HOST': os.environ.get("MYSQL_HOST"),
+        'PORT': os.environ.get("MYSQL_PORT"),
     }
 }
 
@@ -149,9 +154,23 @@ AUTHENTICATION_BACKENDS = ('login.auth0authenticate.Auth0Authentication', 'djang
 
 COOKIE_DOMAIN = ".dbmi.hms.harvard.edu"
 
-ALLOWED_HOSTS = ['authentication.aws.dbmi.hms.harvard.edu']
+ALLOWED_HOSTS = ['.dbmi.hms.harvard.edu']
 
 ADMIN = [('SITE-ADMIN', os.environ.get("SITE_ADMIN"))]
+
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+        }
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG'
+    }
+}
 
 ##########
 

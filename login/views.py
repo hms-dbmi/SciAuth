@@ -1,14 +1,16 @@
 from django.shortcuts import render, redirect
-from stronghold.decorators import public
 from django.conf import settings
 from django.http import HttpResponse
 from django.contrib.auth import login, logout
 from django.contrib import auth as django_auth
+from login.auth0authenticate import user_auth_and_jwt
 
 import requests
 import json
+import logging
+logger = logging.getLogger(__name__)
 
-@public
+
 def auth(request):
     """
     Landing point to force user log in.
@@ -17,14 +19,17 @@ def auth(request):
     redirect if the user is found to be logged in, or after they log in.
     """
 
+    logger.debug("[SCIAUTH][DEBUG][auth] - Checking if user is logged in already.")
+
     if request.user.is_authenticated() and request.COOKIES.get("DBMI_JWT", None) is not None:
+        logger.debug("[SCIAUTH][DEBUG][auth] - Logged in, forward along.")
+
         redirect_url = request.GET.get("next", settings.AUTH0_SUCCESS_URL)
         return redirect(redirect_url)
 
     return render(request, 'login/auth.html', {'auth0_callback_url': settings.AUTH0_CALLBACK_URL})
 
 
-@public
 def callback_handling(request):
     """
     Callback from Auth0
@@ -32,6 +37,8 @@ def callback_handling(request):
     This endpoint is called by auth0 with a code that lets us know the user logged into their Identity Provider successfully.
     We need to use the code to gather the user information from Auth0 and establish the DBMI_JWT cookie.
     """
+
+    logger.debug("[SCIAUTH][DEBUG][callback_handling] - Call returned from Auth0.")
 
     # This is a code passed back from Auth0 that is used to retrieve a token (Which is used to retrieve user info).
     code = request.GET.get('code', '')
@@ -76,11 +83,13 @@ def callback_handling(request):
         # Set the JWT into a cookie in the response.
         response.set_cookie('DBMI_JWT', token_info['id_token'], domain=settings.COOKIE_DOMAIN)
 
+        logger.debug("[SCIAUTH][DEBUG][callback_handling] - User logged in, returning.")
+
         return response
 
     return HttpResponse(status=400)
 
-
+@user_auth_and_jwt
 def logout_view(request):
     """
     User logout
@@ -90,6 +99,6 @@ def logout_view(request):
     logout(request)
     return redirect(settings.AUTH0_LOGOUT_URL)
 
-
+@user_auth_and_jwt
 def landingpage(request):
     return render(request, 'login/landingpage.html')

@@ -40,8 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'login',
-    'stronghold'
+    'login'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -52,8 +51,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'stronghold.middleware.LoginRequiredMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
 
 ROOT_URLCONF = 'SciAuth.urls'
@@ -158,18 +156,36 @@ ALLOWED_HOSTS = ['.dbmi.hms.harvard.edu']
 
 ADMIN = [('SITE-ADMIN', os.environ.get("SITE_ADMIN"))]
 
+
 LOGGING = {
     'version': 1,
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
             'stream': sys.stdout,
+        },
+        'file_debug': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
+        'file_error': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': 'error.log',
         }
     },
     'root': {
-        'handlers': ['console'],
+        'handlers': ['console', 'file_debug'],
         'level': 'DEBUG'
-    }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file_error'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
 }
 
 ##########

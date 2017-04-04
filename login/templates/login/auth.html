@@ -57,7 +57,7 @@
 
 <script src="https://cdn.auth0.com/js/lock/10.0/lock.min.js"></script>
 <script type="text/javascript">
-    var lock = new Auth0Lock('y16slzzzDr9jKhEHsZZmKYskQdJKoMFm', 'mtmcduffie.auth0.com', {
+    var lock = new Auth0Lock('{{ auth0_client_id }}', '{{ auth0_domain }}', {
         auth: {
             redirectUrl: '{{ auth0_callback_url }}?{{ request.GET.urlencode }}',
             responseType: 'code',

@@ -1,74 +1,32 @@
-<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/html">
-<head>
-    <meta charset="UTF-8">
-    <title>Login Page</title>
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
-            integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
-            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-            crossorigin="anonymous"></script>
-    </meta>
-    <style>
-        .footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 60px;
-  background-color: white;
-}
+{% extends "base.html" %}
 
-        .page-header {
-            margin-top: 0px;
-            border-bottom: 3px solid crimson;
-        }
+{% block title %}Login Page{% endblock %}
 
-        .lead {
-            margin-bottom: 0px;
-            padding-top: 10px;
-        }
-    </style>
+{% block content %}
 
-</head>
+    <div class="container">
+        <div id="auth0LockDiv" style="margin:0 auto;"></div>
+    </div>
 
-{% load static %}
-
-<body style="background: url('{% static "dbmi_logo.jpg" %}') no-repeat fixed center;">
-
-<div class="page-header" style="background-color: white;">
-
-        <div class="row">
-            <div class="col-md-2" style="text-align: center;"><img src="https://dbmi.hms.harvard.edu/profiles/hmssf/themes/custom/hms_bootstrap/logo.png" alt="Home"></div>
-            <div class="col-md-4 lead">DEPARTMENT OF BIOMEDICAL INFORMATICS</div>
-            <div class="col-md-4 lead" style="text-align: right;">Don't have an account yet? <a href="register.html" class="btn btn-danger">Register</a></div>
-        </div>
-
-</div>
-
-<div class="container">
-    <div id="auth0LockDiv" style="margin:0 auto;"></div>
-</div>
-
-<footer class="footer lead" style="text-align: center;">
-
-</footer>
-
-<script src="https://cdn.auth0.com/js/lock/10.0/lock.min.js"></script>
-<script type="text/javascript">
-    var lock = new Auth0Lock('{{ auth0_client_id }}', '{{ auth0_domain }}', {
-        auth: {
-            redirectUrl: '{{ auth0_callback_url }}?{{ request.GET.urlencode }}',
-            responseType: 'code',
-            params: {
-                scope: 'openid email' // Learn about scopes: https://auth0.com/docs/scopes
+    <script src="https://cdn.auth0.com/js/lock/10.0/lock.min.js"></script>
+    <script type="text/javascript">
+        var lock = new Auth0Lock('{{ auth0_client_id }}', '{{ auth0_domain }}', {
+            auth: {
+                redirectUrl: '{{ auth0_callback_url }}?{{ request.GET.urlencode }}',
+                responseType: 'code',
+                params: {
+                    scope: 'openid email' // Learn about scopes: https://auth0.com/docs/scopes
+                },
+                sso: true
             },
-            sso: true
-        },
-        container: 'auth0LockDiv'
-    });
-    lock.show();
-</script>
-</body>
-</html>
+            container: 'auth0LockDiv',
+            theme: {
+                logo: 'https://dbmi.hms.harvard.edu/profiles/hmssf/themes/custom/hms_bootstrap/logo.png',
+                primaryColor: "crimson"
+            },
+            languageDictionary: {title: ""}
+        });
+        lock.show();
+    </script>
+
+{% endblock %}

@@ -3,7 +3,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.contrib.auth import login, logout
 from django.contrib import auth as django_auth
-from login.auth0authenticate import user_auth_and_jwt
+from pyauth0jwt.auth0authenticate import user_auth_and_jwt
 
 import requests
 import json

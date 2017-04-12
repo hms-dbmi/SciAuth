@@ -83,7 +83,7 @@ def callback_handling(request):
         response = redirect(redirect_url)
 
         # Set the JWT into a cookie in the response.
-        response.set_cookie('DBMI_JWT', token_info['id_token'], domain=settings.COOKIE_DOMAIN)
+        response.set_cookie('DBMI_JWT', token_info['id_token'], domain=settings.COOKIE_DOMAIN, httponly=True)
 
         logger.debug("[SCIAUTH][DEBUG][callback_handling] - User logged in, returning.")
 

@@ -8,6 +8,7 @@ from pyauth0jwt.auth0authenticate import user_auth_and_jwt
 import requests
 import json
 import logging
+import base64
 logger = logging.getLogger(__name__)
 
 
@@ -53,7 +54,7 @@ def callback_handling(request):
     # Information we pass to auth0, helps identify us and our request.
     token_payload = {
         'client_id': settings.AUTH0_CLIENT_ID,
-        'client_secret': settings.AUTH0_SECRET,
+        'client_secret': base64.b64decode(settings.AUTH0_SECRET, '-_').decode('utf-8'),
         'redirect_uri': settings.AUTH0_CALLBACK_URL,
         'code': code,
         'grant_type': 'authorization_code'

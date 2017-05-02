@@ -1,11 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>User has landed.</title>
-</head>
-<body>
-    You've succesfully logged in. You should have been redirected off this page.
-    <a href="{% url 'logout' %}">Logout</a>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Login Page{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="jumbotron text-center">
+
+            You've succesfully logged in! But there's nothing here. <br />
+
+            Please try visiting your intended URL again.
+
+            <br /><br />
+
+            <a href="{% url 'logout' %}">Logout</a>
+        </div>
+    </div>
+{% endblock %}

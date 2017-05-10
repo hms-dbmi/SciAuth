@@ -153,12 +153,11 @@ AUTHENTICATION_BACKENDS = ('pyauth0jwt.auth0authenticate.Auth0Authentication', '
 
 AUTHENTICATION_LOGIN_URL = os.environ.get("AUTHENTICATION_LOGIN_URL")
 
-COOKIE_DOMAIN = ".dbmi.hms.harvard.edu"
+COOKIE_DOMAIN = os.environ.get("COOKIE_DOMAIN")
 
 ALLOWED_HOSTS = ['.dbmi.hms.harvard.edu']
 
 ADMIN = [('SITE-ADMIN', os.environ.get("SITE_ADMIN"))]
-
 
 LOGGING = {
     'version': 1,

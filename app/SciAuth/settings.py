@@ -123,14 +123,13 @@ USE_TZ = True
 ##########
 # STATIC FILE CONFIGURATION
 DJANGO_ROOT = dirname(dirname(abspath(__file__)))
-SITE_ROOT = dirname(DJANGO_ROOT)
 # THIS IS WHERE FILES ARE COLLECTED INTO.
-STATIC_ROOT = normpath(join(SITE_ROOT, 'SciAuth', 'assets'))
+STATIC_ROOT = normpath(join(DJANGO_ROOT, 'assets'))
 STATIC_URL = '/static/'
 
 # THIS IS WHERE FILES ARE COLLECTED FROM
 STATICFILES_DIRS = (
-    normpath(join(SITE_ROOT, 'SciAuth', 'static')),
+    normpath(join(DJANGO_ROOT, 'static')),
 )
 
 STATICFILES_FINDERS = (

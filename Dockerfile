@@ -1,7 +1,7 @@
 FROM dbmi/pynxgu
 
-COPY SciAuth /SciAuth/
-RUN pip install -r /SciAuth/requirements.txt
+COPY app /app
+RUN pip install -r /app/requirements.txt
 
 RUN mkdir /entry_scripts/
 COPY gunicorn-nginx-entry.sh /entry_scripts/

@@ -47,4 +47,6 @@ python manage.py collectstatic --no-input
 
 /etc/init.d/nginx restart
 
-gunicorn SciAuth.wsgi:application -b 0.0.0.0:8002
+chown -R www-data:www-data /app
+
+gunicorn SciAuth.wsgi:application -b 0.0.0.0:8002 --user=www-data --group=www-data

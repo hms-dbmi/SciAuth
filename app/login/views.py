@@ -4,11 +4,12 @@ from django.http import HttpResponse
 from django.contrib.auth import login, logout
 from django.contrib import auth as django_auth
 from pyauth0jwt.auth0authenticate import user_auth_and_jwt
-
+from urllib.parse import urlencode
 import requests
 import json
 import logging
 import base64
+import urllib.parse as urlparse
 logger = logging.getLogger(__name__)
 
 
@@ -81,6 +82,22 @@ def callback_handling(request):
 
         # Redirect the user to the page they originally requested.
         redirect_url = request.GET.get("next", settings.AUTH0_SUCCESS_URL)
+
+        # Check for a success url. Use substring matching due to Django/Auth0/etc mangling the kv pairs
+        matches = [value for key, value in request.GET.items() if 'success_url' in key.lower()]
+        if len(matches):
+
+            # Get it.
+            success_url = matches[0]
+            logger.debug("[SCIAUTH][DEBUG][callback_handling] - Found success URL: " + success_url)
+
+            # Append it to the redirect.
+            url_parts = list(urlparse.urlparse(redirect_url))
+            query = dict(urlparse.parse_qsl(url_parts[4]))
+            query.update({"success_url": success_url})
+            url_parts[4] = urlencode(query)
+            redirect_url = urlparse.urlunparse(url_parts)
+
         response = redirect(redirect_url)
 
         # Set the JWT into a cookie in the response.

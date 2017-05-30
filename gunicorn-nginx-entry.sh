@@ -11,6 +11,8 @@ AUTH0_SUCCESS_URL_VAULT=$(/vault/vault read -field=value $VAULT_PATH/auth0_succe
 AUTH0_LOGOUT_URL_VAULT=$(/vault/vault read -field=value $VAULT_PATH/auth0_logout_url)
 COOKIE_DOMAIN_VAULT=$(/vault/vault read -field=value $VAULT_PATH/cookie_domain)
 
+AUTHENTICATION_LOGIN_URL=$(/vault/vault read -field=value $VAULT_PATH/account_server_url)
+
 MYSQL_USERNAME_VAULT=$(/vault/vault read -field=value $VAULT_PATH/mysql_username)
 MYSQL_PASSWORD_VAULT=$(/vault/vault read -field=value $VAULT_PATH/mysql_pw)
 MYSQL_HOST_VAULT=$(/vault/vault read -field=value $DB_VAULT_PATH/mysql_host)
@@ -29,6 +31,8 @@ export MYSQL_USERNAME=$MYSQL_USERNAME_VAULT
 export MYSQL_PASSWORD=$MYSQL_PASSWORD_VAULT
 export MYSQL_HOST=$MYSQL_HOST_VAULT
 export MYSQL_PORT=$MYSQL_PORT_VAULT
+
+export AUTHENTICATION_LOGIN_URL
 
 SSL_KEY=$(/vault/vault read -field=value $VAULT_PATH/ssl_key)
 SSL_CERT_CHAIN=$(/vault/vault read -field=value $VAULT_PATH/ssl_cert_chain)

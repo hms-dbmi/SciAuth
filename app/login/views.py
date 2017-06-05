@@ -4,12 +4,14 @@ from django.http import HttpResponse
 from django.contrib.auth import login, logout
 from django.contrib import auth as django_auth
 from pyauth0jwt.auth0authenticate import user_auth_and_jwt
-from urllib.parse import urlencode
+from .sciauthz_services import get_sciauthz_project
+
+from urllib import parse
 import requests
 import json
 import logging
 import base64
-import urllib.parse as urlparse
+
 logger = logging.getLogger(__name__)
 
 
@@ -29,9 +31,44 @@ def auth(request):
         redirect_url = request.GET.get("next", settings.AUTH0_SUCCESS_URL)
         return redirect(redirect_url)
 
-    return render(request, 'login/auth.html', {'auth0_callback_url': settings.AUTH0_CALLBACK_URL,
-                                               'auth0_client_id': settings.AUTH0_CLIENT_ID,
-                                               'auth0_domain': settings.AUTH0_DOMAIN})
+    # Initialize the context.
+    context = {
+        'auth0_callback_url': settings.AUTH0_CALLBACK_URL,
+        'auth0_client_id': settings.AUTH0_CLIENT_ID,
+        'auth0_domain': settings.AUTH0_DOMAIN,
+    }
+
+    # Check for a project id.
+    project_id = request.GET.get('project', None)
+    if project_id is not None:
+
+        try:
+            # Query authz for the project details.
+            response = get_sciauthz_project(project_id)
+            project = response.json()
+
+            # Add the title and description to the context.
+            context['project'] = project_id
+            context['project_title'] = project.get('title', None)
+            context['project_description'] = project.get('description', None)
+            context['project_icon_url'] = project.get('icon_url', None)
+
+        except (requests.ConnectionError, ValueError):
+
+            logger.error("[SCIAUTH][ERROR][auth] - SciAuthZ project lookup failed")
+
+            # TODO Remove default static data and implement error handling
+            context['project_title'] = '[project title]'
+            context['project_icon_url'] = 'https://maxcdn.icons8.com/Share/icon/User_Interface//ios_application_placeholder1600.png'
+            context['project_description'] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' \
+                                             'Suspendisse ipsum nisl, feugiat non nunc vitae, tempor congue libero. ' \
+                                             'Morbi condimentum commodo ipsum a pellentesque. Vestibulum ullamcorper ' \
+                                             'ornare lobortis. Morbi a eleifend leo. Aliquam sed diam.'
+
+    else:
+        logger.debug("[SCIAUTH][DEBUG][auth] - No project identifier passed")
+
+    return render(request, 'login/auth.html', context)
 
 
 def callback_handling(request):
@@ -92,11 +129,11 @@ def callback_handling(request):
             logger.debug("[SCIAUTH][DEBUG][callback_handling] - Found success URL: " + success_url)
 
             # Append it to the redirect.
-            url_parts = list(urlparse.urlparse(redirect_url))
-            query = dict(urlparse.parse_qsl(url_parts[4]))
+            url_parts = list(parse.urlparse(redirect_url))
+            query = dict(parse.parse_qsl(url_parts[4]))
             query.update({"success_url": success_url})
-            url_parts[4] = urlencode(query)
-            redirect_url = urlparse.urlunparse(url_parts)
+            url_parts[4] = parse.urlencode(query)
+            redirect_url = parse.urlunparse(url_parts)
 
         response = redirect(redirect_url)
 

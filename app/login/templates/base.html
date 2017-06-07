@@ -9,7 +9,6 @@
     {% bootstrap_css %}
     {% bootstrap_javascript jquery=1 %}
 
-    </meta>
     <style>
         .footer {
           position: absolute;
@@ -28,6 +27,43 @@
             margin-bottom: 0px;
             padding-top: 10px;
         }
+
+        .container {
+
+         }
+
+         .project-panel {
+            max-width: 300px;
+            padding: 0 15px;
+            margin: 0 auto 20px auto;
+         }
+
+         .project-panel h1 {
+            text-align: center;
+            font-size: 24px;
+         }
+
+         .project-panel .icon {
+            text-align: center;
+            margin: 10px 0;
+         }
+
+         .project-panel .icon img {
+            height: 75px;
+         }
+
+         .project-panel {
+            border-radius: 6px;
+         }
+
+        @media (min-width: 768px) {
+
+            .project-panel {
+                max-width: none;
+            }
+
+        }
+
     </style>
 
 </head>

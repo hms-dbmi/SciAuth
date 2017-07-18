@@ -5,7 +5,33 @@
 {% block content %}
 
     <div class="container">
-        <div id="auth0LockDiv" style="margin:0 auto;"></div>
+        <div class="row">
+            {# Check for project information #}
+            {% if project_title and project_icon_url or project_description %}
+            <div class="project col-xs
+            col-sm-offset-1 col-sm-5
+            col-md-offset-2 col-md-4
+            col-xl-offset-3 col-xl-3">
+                <div class="project-panel panel">
+                    <div class="panel-heading">
+                        {% if project_icon_url %}
+                        <div class="icon"><img src="{{ project_icon_url }}" /></div>
+                        {% endif %}
+                        <h1 class="panel-title">{{ project_title }}</h1>
+                    </div>
+                    <div class="panel-body">
+                        {% if project_description %}
+                        <p>{{ project_description }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div id="auth0LockDiv" class="col-sm-3 col-xs"></div>
+            {% else %}
+            <div id="auth0LockDiv" class="col-xs"></div>
+            {% endif %}
+        </div>
     </div>
 
     <script src="https://cdn.auth0.com/js/lock/10.0/lock.min.js"></script>
@@ -24,7 +50,13 @@
                 logo: 'https://dbmi.hms.harvard.edu/profiles/hmssf/themes/custom/hms_bootstrap/logo.png',
                 primaryColor: "crimson"
             },
-            languageDictionary: {title: ""}
+            languageDictionary: {
+                title: {% if project_title and not project_description and not project_icon_url %}
+                            "{{ project_title }}"
+                        {% else %}
+                            ""
+                        {% endif %}
+            }
         });
         lock.show();
     </script>

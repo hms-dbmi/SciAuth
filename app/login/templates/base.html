@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>{%block title%}{%endblock%}</title>
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
-            integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
-            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-            crossorigin="anonymous"></script>
-    </meta>
+
+    {% load bootstrap3 %}
+
+    {% bootstrap_css %}
+    {% bootstrap_javascript jquery=1 %}
+
     <style>
         .footer {
           position: absolute;
@@ -29,6 +27,43 @@
             margin-bottom: 0px;
             padding-top: 10px;
         }
+
+        .container {
+
+         }
+
+         .project-panel {
+            max-width: 300px;
+            padding: 0 15px;
+            margin: 0 auto 20px auto;
+         }
+
+         .project-panel h1 {
+            text-align: center;
+            font-size: 24px;
+         }
+
+         .project-panel .icon {
+            text-align: center;
+            margin: 10px 0;
+         }
+
+         .project-panel .icon img {
+            height: 75px;
+         }
+
+         .project-panel {
+            border-radius: 6px;
+         }
+
+        @media (min-width: 768px) {
+
+            .project-panel {
+                max-width: none;
+            }
+
+        }
+
     </style>
 
 </head>

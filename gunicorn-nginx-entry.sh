@@ -53,6 +53,9 @@ python manage.py collectstatic --no-input
 
 /etc/init.d/nginx restart
 
+# Start NessusAgent for monitoring vulnerabilities.
+/etc/init.d/nessusagent start
+
 chown -R www-data:www-data /app
 
 gunicorn SciAuth.wsgi:application -b 0.0.0.0:8002 --user=www-data --group=www-data

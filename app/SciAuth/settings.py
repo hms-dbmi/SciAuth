@@ -33,8 +33,12 @@ SECRET_KEY = os.environ.get("SECRET_KEY", get_random_string(50, chars))
 DEBUG = False
 
 secret_store = SecretStore()
-PARAMETER_PATH = os.environ.get("PS_PATH", "")
-ALLOWED_HOSTS = [secret_store.get_secret_for_key(PARAMETER_PATH + '.allowed_hosts')]
+PARAMETER_PATH = os.environ.get("PS_PATH", None)
+
+if PARAMETER_PATH:
+    ALLOWED_HOSTS = [secret_store.get_secret_for_key(PARAMETER_PATH + '.allowed_hosts')]
+else:
+    ALLOWED_HOSTS = ["localhost"]
 
 # Application definition
 

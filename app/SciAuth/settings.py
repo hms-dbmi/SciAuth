@@ -15,6 +15,7 @@ import sys
 
 from os.path import normpath, join, dirname, abspath
 from django.utils.crypto import get_random_string
+from pythonpstore.pythonpstore import SecretStore
 
 chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
 
@@ -30,6 +31,10 @@ SECRET_KEY = os.environ.get("SECRET_KEY", get_random_string(50, chars))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
+
+secret_store = SecretStore()
+PARAMETER_PATH = os.environ.get("PS_PATH", "")
+ALLOWED_HOSTS = [secret_store.get_secret_for_key(PARAMETER_PATH + '.allowed_hosts')]
 
 # Application definition
 
@@ -156,8 +161,6 @@ AUTHENTICATION_BACKENDS = ('pyauth0jwt.auth0authenticate.Auth0Authentication', '
 AUTHENTICATION_LOGIN_URL = os.environ.get("AUTHENTICATION_LOGIN_URL")
 
 COOKIE_DOMAIN = os.environ.get("COOKIE_DOMAIN")
-
-ALLOWED_HOSTS = ['.dbmi.hms.harvard.edu']
 
 ADMIN = [('SITE-ADMIN', os.environ.get("SITE_ADMIN"))]
 

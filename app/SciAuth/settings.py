@@ -15,6 +15,7 @@ import sys
 
 from os.path import normpath, join, dirname, abspath
 from django.utils.crypto import get_random_string
+from pythonpstore.pythonpstore import SecretStore
 
 chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
 
@@ -31,6 +32,16 @@ SECRET_KEY = os.environ.get("SECRET_KEY", get_random_string(50, chars))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
+secret_store = SecretStore()
+PARAMETER_PATH = os.environ.get("PS_PATH", None)
+
+if PARAMETER_PATH:
+    ALLOWED_HOSTS = [secret_store.get_secret_for_key(PARAMETER_PATH + '.allowed_hosts')]
+    RAVEN_URL = secret_store.get_secret_for_key(PARAMETER_PATH + '.raven_url')
+else:
+    ALLOWED_HOSTS = ["localhost"]
+    RAVEN_URL = ""
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -42,7 +53,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bootstrap3',
     'login',
-    'pyauth0jwt'
+    'pyauth0jwt',
+    'raven.contrib.django.raven_compat',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -157,8 +169,6 @@ AUTHENTICATION_LOGIN_URL = os.environ.get("AUTHENTICATION_LOGIN_URL")
 
 COOKIE_DOMAIN = os.environ.get("COOKIE_DOMAIN")
 
-ALLOWED_HOSTS = ['.dbmi.hms.harvard.edu']
-
 ADMIN = [('SITE-ADMIN', os.environ.get("SITE_ADMIN"))]
 
 LOGGING = {
@@ -212,6 +222,13 @@ BOOTSTRAP3 = {
 }
 
 ##########
+
+RAVEN_CONFIG = {
+    'dsn': RAVEN_URL,
+    # If you are using git, you can also automatically configure the
+    # release based on the git info.
+    'release': '1',
+}
 
 try:
     from .local_settings import *

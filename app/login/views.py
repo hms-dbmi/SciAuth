@@ -69,16 +69,7 @@ def auth(request):
             context['project_icon_url'] = project.get('icon_url', None)
 
         except (requests.ConnectionError, ValueError):
-
             logger.error("[SCIAUTH][ERROR][auth] - SciAuthZ project lookup failed")
-
-            # TODO Remove default static data and implement error handling
-            context['project_title'] = '[project title]'
-            context['project_icon_url'] = 'https://maxcdn.icons8.com/Share/icon/User_Interface//ios_application_placeholder1600.png'
-            context['project_description'] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' \
-                                             'Suspendisse ipsum nisl, feugiat non nunc vitae, tempor congue libero. ' \
-                                             'Morbi condimentum commodo ipsum a pellentesque. Vestibulum ullamcorper ' \
-                                             'ornare lobortis. Morbi a eleifend leo. Aliquam sed diam.'
 
     else:
         logger.debug("[SCIAUTH][DEBUG][auth] - No project identifier passed")

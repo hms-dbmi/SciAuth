@@ -13,7 +13,7 @@ def get_sciauthz_project(project):
 
     # Build the url.
     f = furl(settings.SCIAUTHZ_URL)
-    f.path = 'Project'
+    f.path.add('project')
 
     # Set the data for the request.
     data = {'project': project}

@@ -1,16 +1,20 @@
 from django.shortcuts import render, redirect
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, QueryDict
+from django.contrib.auth.models import User
 from django.contrib.auth import login, logout
 from django.contrib import auth as django_auth
 from pyauth0jwt.auth0authenticate import user_auth_and_jwt
 from .sciauthz_services import get_sciauthz_project
+from SciAuth import scireg_services
 
 from urllib import parse
 import requests
 import json
 import logging
 import base64
+import furl
+import pickle
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +42,18 @@ def auth(request):
         'auth0_domain': settings.AUTH0_DOMAIN,
     }
 
+    # Build the redirect URL
+    return_url = furl.furl(settings.AUTH0_CALLBACK_URL)
+
+    # Pass along any parameters as base64 encoded
+    query = base64.urlsafe_b64encode(request.META.get('QUERY_STRING').encode('utf-8')).decode('utf-8')
+    return_url.query.params.add('query', query)
+
+    logger.debug('[login][views.auth] Return URL: {}'.format(return_url.url))
+
+    # Add to the context.
+    context['return_url'] = return_url.url
+
     # Check for a project id.
     project_id = request.GET.get('project', None)
     if project_id is not None:
@@ -54,16 +70,7 @@ def auth(request):
             context['project_icon_url'] = project.get('icon_url', None)
 
         except (requests.ConnectionError, ValueError):
-
             logger.error("[SCIAUTH][ERROR][auth] - SciAuthZ project lookup failed")
-
-            # TODO Remove default static data and implement error handling
-            context['project_title'] = '[project title]'
-            context['project_icon_url'] = 'https://maxcdn.icons8.com/Share/icon/User_Interface//ios_application_placeholder1600.png'
-            context['project_description'] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' \
-                                             'Suspendisse ipsum nisl, feugiat non nunc vitae, tempor congue libero. ' \
-                                             'Morbi condimentum commodo ipsum a pellentesque. Vestibulum ullamcorper ' \
-                                             'ornare lobortis. Morbi a eleifend leo. Aliquam sed diam.'
 
     else:
         logger.debug("[SCIAUTH][DEBUG][auth] - No project identifier passed")
@@ -108,6 +115,10 @@ def callback_handling(request):
     # Get the user info from auth0.
     user_info = requests.get(user_url).json()
 
+    # Check for an existing user
+    new_user = User.objects.filter(username=user_info['email']).count() == 0
+    logger.debug('[login][views.callback_handling] New user? {}'.format(new_user))
+
     # We're saving all user information into the session
     request.session['profile'] = user_info
     user = django_auth.authenticate(**user_info)
@@ -117,28 +128,40 @@ def callback_handling(request):
         # Log the user into the SciAuth Django App.
         login(request, user)
 
+        # Get the JWT token
+        jwt = token_info['id_token']
+
+        try:
+            # Get the original query string
+            query = QueryDict(base64.urlsafe_b64decode(request.GET.get('query').encode('utf-8')).decode('utf-8'))
+            logger.debug('[login][views.callback_handling] Original query: {}'.format(query))
+        except Exception as e:
+            # Use an empty query dict
+            query = QueryDict()
+            logger.exception('[login][views.callback_handling] Parsing of original query failed: {}'.format(e))
+
+        # Get the project, if any.
+        project = query.get('project', 'hms')
+
+        try:
+            # Check for a new user.
+            email_confirm_success_url = query.get('email_confirm_success_url')
+            if email_confirm_success_url and new_user:
+
+                # Start email verification
+                response = scireg_services.send_confirmation_email(jwt, email_confirm_success_url, project)
+                logger.debug('[login][views.callback_handling] Email confirmation response: {}: {}'
+                             .format(response.status_code, response.content))
+
+        except Exception as e:
+            logger.exception('[login][views.callback_handling] New user/email verification failed: {}'.format(e))
+
         # Redirect the user to the page they originally requested.
-        redirect_url = request.GET.get("next", settings.AUTH0_SUCCESS_URL)
-
-        # Check for a success url. Use substring matching due to Django/Auth0/etc mangling the kv pairs
-        matches = [value for key, value in request.GET.items() if 'success_url' in key.lower()]
-        if len(matches):
-
-            # Get it.
-            success_url = matches[0]
-            logger.debug("[SCIAUTH][DEBUG][callback_handling] - Found success URL: " + success_url)
-
-            # Append it to the redirect.
-            url_parts = list(parse.urlparse(redirect_url))
-            query = dict(parse.parse_qsl(url_parts[4]))
-            query.update({"success_url": success_url})
-            url_parts[4] = parse.urlencode(query)
-            redirect_url = parse.urlunparse(url_parts)
-
+        redirect_url = query.get('next', settings.AUTH0_SUCCESS_URL)
         response = redirect(redirect_url)
 
         # Set the JWT into a cookie in the response.
-        response.set_cookie('DBMI_JWT', token_info['id_token'], domain=settings.COOKIE_DOMAIN, httponly=True)
+        response.set_cookie('DBMI_JWT', jwt, domain=settings.COOKIE_DOMAIN, httponly=True)
 
         logger.debug("[SCIAUTH][DEBUG][callback_handling] - User logged in, returning.")
 

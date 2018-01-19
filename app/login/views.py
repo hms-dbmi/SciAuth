@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.http import HttpResponse, QueryDict
+from django.contrib.auth.models import User
 from django.contrib.auth import login, logout
 from django.contrib import auth as django_auth
 from pyauth0jwt.auth0authenticate import user_auth_and_jwt
@@ -114,6 +115,10 @@ def callback_handling(request):
     # Get the user info from auth0.
     user_info = requests.get(user_url).json()
 
+    # Check for an existing user
+    new_user = User.objects.filter(username=user_info['email']).count() == 0
+    logger.debug('[login][views.callback_handling] New user? {}'.format(new_user))
+
     # We're saving all user information into the session
     request.session['profile'] = user_info
     user = django_auth.authenticate(**user_info)
@@ -138,16 +143,18 @@ def callback_handling(request):
         # Get the project, if any.
         project = query.get('project', 'hms')
 
-        # Check for an email confirmation URL.
-        email_confirm_success_url = query.get('email_confirm_success_url')
-        if email_confirm_success_url is not None:
-            logger.debug('[login][views.callback_handling] Email confirmation requested with success URL: {}'
-                         .format(email_confirm_success_url))
+        try:
+            # Check for a new user.
+            email_confirm_success_url = query.get('email_confirm_success_url')
+            if email_confirm_success_url and new_user:
 
-            # Start email verification
-            response = scireg_services.send_confirmation_email(jwt, email_confirm_success_url, project)
-            logger.debug('[login][views.callback_handling] Email confirmation response: {}: {}'
-                         .format(response.status_code, response.content))
+                # Start email verification
+                response = scireg_services.send_confirmation_email(jwt, email_confirm_success_url, project)
+                logger.debug('[login][views.callback_handling] Email confirmation response: {}: {}'
+                             .format(response.status_code, response.content))
+
+        except Exception as e:
+            logger.exception('[login][views.callback_handling] New user/email verification failed: {}'.format(e))
 
         # Redirect the user to the page they originally requested.
         redirect_url = query.get('next', settings.AUTH0_SUCCESS_URL)

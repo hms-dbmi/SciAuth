@@ -15,6 +15,7 @@ import logging
 import base64
 import furl
 import pickle
+import jwt
 
 logger = logging.getLogger(__name__)
 
@@ -168,6 +169,32 @@ def callback_handling(request):
         return response
 
     return HttpResponse(status=400)
+
+
+def validate_jwt(request):
+    jwt_to_validate = request.POST.get('jwt', '')
+
+    # Check that we actually have a token.
+    if jwt_to_validate is not None:
+
+        # Attempt to validate the JWT (Checks both expiry and signature)
+        try:
+            payload = jwt.decode(jwt_to_validate,
+                                 base64.b64decode(settings.AUTH0_SECRET, '-_'),
+                                 algorithms=['HS256'],
+                                 leeway=120,
+                                 audience=settings.AUTH0_CLIENT_ID)
+
+        except jwt.InvalidTokenError as err:
+            logger.error(str(err))
+            logger.error("[PYAUTH0JWT][DEBUG][validate_jwt] - Invalid JWT Token.")
+            payload = None
+        except jwt.ExpiredSignatureError as err:
+            logger.error(str(err))
+            logger.error("[PYAUTH0JWT][DEBUG][validate_jwt] - JWT Expired.")
+            payload = None
+    else:
+        payload = None
 
 @user_auth_and_jwt
 def logout_view(request):

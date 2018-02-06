@@ -7,6 +7,8 @@ from django.contrib import auth as django_auth
 from pyauth0jwt.auth0authenticate import user_auth_and_jwt
 from .sciauthz_services import get_sciauthz_project
 from SciAuth import scireg_services
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 from urllib import parse
 import requests
@@ -170,8 +172,9 @@ def callback_handling(request):
 
     return HttpResponse(status=400)
 
-
+@csrf_exempt
 def validate_jwt(request):
+
     jwt_to_validate = request.POST.get('jwt', '')
 
     # Check that we actually have a token.
@@ -179,22 +182,23 @@ def validate_jwt(request):
 
         # Attempt to validate the JWT (Checks both expiry and signature)
         try:
-            payload = jwt.decode(jwt_to_validate,
+            jwt.decode(jwt_to_validate,
                                  base64.b64decode(settings.AUTH0_SECRET, '-_'),
                                  algorithms=['HS256'],
                                  leeway=120,
                                  audience=settings.AUTH0_CLIENT_ID)
 
+            response_data = {"status": "VALID"}
+
         except jwt.InvalidTokenError as err:
-            logger.error(str(err))
-            logger.error("[PYAUTH0JWT][DEBUG][validate_jwt] - Invalid JWT Token.")
-            payload = None
+            response_data = {"stauts": "INVALID"}
         except jwt.ExpiredSignatureError as err:
-            logger.error(str(err))
-            logger.error("[PYAUTH0JWT][DEBUG][validate_jwt] - JWT Expired.")
-            payload = None
+            response_data = {"status": "EXPIRED_SIGNATURE"}
     else:
-        payload = None
+        response_data = {"status": "NO_JWT"}
+
+    return JsonResponse(response_data)
+
 
 @user_auth_and_jwt
 def logout_view(request):

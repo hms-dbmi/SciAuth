@@ -7,6 +7,8 @@ from django.contrib import auth as django_auth
 from pyauth0jwt.auth0authenticate import user_auth_and_jwt
 from .sciauthz_services import get_sciauthz_project
 from SciAuth import scireg_services
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 from urllib import parse
 import requests
@@ -15,6 +17,7 @@ import logging
 import base64
 import furl
 import pickle
+import jwt
 
 logger = logging.getLogger(__name__)
 
@@ -168,6 +171,34 @@ def callback_handling(request):
         return response
 
     return HttpResponse(status=400)
+
+@csrf_exempt
+def validate_jwt(request):
+
+    jwt_to_validate = request.POST.get('jwt', '')
+
+    # Check that we actually have a token.
+    if jwt_to_validate is not None:
+
+        # Attempt to validate the JWT (Checks both expiry and signature)
+        try:
+            jwt.decode(jwt_to_validate,
+                                 base64.b64decode(settings.AUTH0_SECRET, '-_'),
+                                 algorithms=['HS256'],
+                                 leeway=120,
+                                 audience=settings.AUTH0_CLIENT_ID)
+
+            response_data = {"status": "VALID"}
+
+        except jwt.InvalidTokenError as err:
+            response_data = {"stauts": "INVALID"}
+        except jwt.ExpiredSignatureError as err:
+            response_data = {"status": "EXPIRED_SIGNATURE"}
+    else:
+        response_data = {"status": "NO_JWT"}
+
+    return JsonResponse(response_data)
+
 
 @user_auth_and_jwt
 def logout_view(request):

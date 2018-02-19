@@ -15,7 +15,6 @@ import sys
 
 from os.path import normpath, join, dirname, abspath
 from django.utils.crypto import get_random_string
-from pythonpstore.pythonpstore import SecretStore
 
 chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
 
@@ -32,15 +31,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY", get_random_string(50, chars))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-secret_store = SecretStore()
-PARAMETER_PATH = os.environ.get("PS_PATH", None)
-
-if PARAMETER_PATH:
-    ALLOWED_HOSTS = [secret_store.get_secret_for_key(PARAMETER_PATH + '.allowed_hosts')]
-    RAVEN_URL = secret_store.get_secret_for_key(PARAMETER_PATH + '.raven_url')
-else:
-    ALLOWED_HOSTS = ["localhost"]
-    RAVEN_URL = ""
+ALLOWED_HOSTS = [os.environ.get("ALLOWED_HOSTS")]
 
 # Application definition
 
@@ -161,6 +152,7 @@ AUTH0_CALLBACK_URL = os.environ.get("AUTH0_CALLBACK_URL")
 AUTH0_SUCCESS_URL = os.environ.get("AUTH0_SUCCESS_URL")
 AUTH0_LOGOUT_URL = os.environ.get("AUTH0_LOGOUT_URL")
 
+SCIREG_URL = os.environ.get("SCIREG_URL")
 SCIAUTHZ_URL = os.environ.get("SCIAUTHZ_URL")
 
 AUTHENTICATION_BACKENDS = ('pyauth0jwt.auth0authenticate.Auth0Authentication', 'django.contrib.auth.backends.ModelBackend')
@@ -224,7 +216,7 @@ BOOTSTRAP3 = {
 ##########
 
 RAVEN_CONFIG = {
-    'dsn': RAVEN_URL,
+    'dsn': os.environ.get("RAVEN_URL"),
     # If you are using git, you can also automatically configure the
     # release based on the git info.
     'release': '1',

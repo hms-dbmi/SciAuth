@@ -38,7 +38,7 @@
     <script type="text/javascript">
         var lock = new Auth0Lock('{{ auth0_client_id }}', '{{ auth0_domain }}', {
             auth: {
-                redirectUrl: '{{ auth0_callback_url }}?{{ request.GET.urlencode }}',
+                redirectUrl: '{{ return_url }}',
                 responseType: 'code',
                 params: {
                     scope: 'openid email' // Learn about scopes: https://auth0.com/docs/scopes

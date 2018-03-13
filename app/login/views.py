@@ -58,7 +58,7 @@ def auth(request):
 
     # Check for a project id.
     project_id = request.GET.get('project', None)
-    logging.debug("Login screen for project: {}".format(project_id))
+    logger.debug("Login screen for project: {}".format(project_id))
     if project_id is not None:
 
         try:
@@ -66,7 +66,7 @@ def auth(request):
             response = get_sciauthz_project(project_id)
             project = response.json()
 
-            logging.debug("Project lookup: {}".format(project))
+            logger.debug("Project lookup: {}".format(project))
 
             # Add the title and description to the context.
             context['project'] = project_id
@@ -129,7 +129,7 @@ def callback_handling(request):
 
     # If everything is good and we have the user info we can proceed.
     if user:
-        logging.debug("User is good, proceeding")
+        logger.debug("User is good, proceeding")
 
         # Log the user into the SciAuth Django App.
         login(request, user)
@@ -164,7 +164,7 @@ def callback_handling(request):
 
         # Redirect the user to the page they originally requested.
         redirect_url = query.get('next', settings.AUTH0_SUCCESS_URL)
-        logging.debug('Redirecting user to: {}'.format(redirect_url))
+        logger.debug('Redirecting user to: {}'.format(redirect_url))
 
         response = redirect(redirect_url)
 
@@ -176,13 +176,13 @@ def callback_handling(request):
         return response
 
     else:
-        logging.error("User is NOT good")
+        logger.error("User is NOT good")
 
     return HttpResponse(status=400)
 
 @csrf_exempt
 def validate_jwt(request):
-    logging.debug("Validating JWT")
+    logger.debug("Validating JWT")
 
     jwt_to_validate = request.POST.get('jwt', '')
 
@@ -200,13 +200,13 @@ def validate_jwt(request):
             response_data = {"status": "VALID"}
 
         except jwt.InvalidTokenError:
-            logging.error("JWT token is invalid")
+            logger.error("JWT token is invalid")
             response_data = {"stauts": "INVALID"}
         except jwt.ExpiredSignatureError:
-            logging.error("JWT token expired")
+            logger.error("JWT token expired")
             response_data = {"status": "EXPIRED_SIGNATURE"}
     else:
-        logging.error("JWT token is missing")
+        logger.error("JWT token is missing")
         response_data = {"status": "NO_JWT"}
 
     return JsonResponse(response_data)
@@ -219,11 +219,11 @@ def logout_view(request):
 
     This endpoint logs out the user session from the SciAuth Django app.
     """
-    logging.debug("User is logging out, redirecting to: {}".format(settings.AUTH0_LOGOUT_URL))
+    logger.debug("User is logging out, redirecting to: {}".format(settings.AUTH0_LOGOUT_URL))
     logout(request)
     return redirect(settings.AUTH0_LOGOUT_URL)
 
 @user_auth_and_jwt
 def landingpage(request):
-    logging.debug("Landing page")
+    logger.debug("Landing page")
     return render(request, 'login/landingpage.html')

@@ -90,23 +90,28 @@ class RequestFilter(object):
         a hyphen ``'-'`` is substituted as a placeholder.
         """
         request = self.request
+
         # Basic
         record.request_method = getattr(request, 'method', '-')
         record.path_info = getattr(request, 'path_info', '-')
+
         # User
         user = getattr(request, 'user', None)
         if user and not user.is_anonymous():
 
             # Hash it
-            username_hash = hashlib.sha1(user.username.encode()).hexdigest()[:8]
-            record.username = '{}:{}'.format(str(user.id), username_hash)
+            record.username = hashlib.sha1(user.username.encode()).hexdigest()[:8]
+            record.userid = str(user.id)
         else:
             record.username = '---'
+            record.userid = '-'
+
         # Headers
         META = getattr(request, 'META', {})
         record.remote_addr = META.get('REMOTE_ADDR', '-')
         record.server_protocol = META.get('SERVER_PROTOCOL', '-')
         record.http_user_agent = META.get('HTTP_USER_AGENT', '-')
+
         return True
 
 import weakref

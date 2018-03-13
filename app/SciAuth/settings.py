@@ -54,7 +54,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'SciAuth.middlewares.LogSetupMiddleware',
+    'SciAuth.logging.LogSetupMiddleware',
 ]
 
 ROOT_URLCONF = 'SciAuth.urls'
@@ -166,13 +166,13 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'console': {
-            'format': '[%(asctime)s][%(levelname)s][%(name)s.%(funcName)s][%(username)s] - %(message)s',
+            'format': '[%(asctime)s][%(levelname)s][%(name)s.%(funcName)s][%(username)s][%(userid)s] - %(message)s',
         },
     },
     'filters': {
         # Add an unbound RequestFilter.
         'request': {
-            '()': 'SciAuth.middlewares.RequestFilter',
+            '()': 'SciAuth.logging.RequestFilter',
         },
     },
     'handlers': {

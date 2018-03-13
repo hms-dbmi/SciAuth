@@ -164,6 +164,8 @@ def callback_handling(request):
 
         # Redirect the user to the page they originally requested.
         redirect_url = query.get('next', settings.AUTH0_SUCCESS_URL)
+        logging.debug('Redirecting user to: {}'.format(redirect_url))
+
         response = redirect(redirect_url)
 
         # Set the JWT into a cookie in the response.

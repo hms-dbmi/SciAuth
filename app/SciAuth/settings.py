@@ -14,9 +14,6 @@ import os
 import sys
 
 from os.path import normpath, join, dirname, abspath
-from django.utils.crypto import get_random_string
-
-chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -26,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY", get_random_string(50, chars))
+SECRET_KEY = os.environ.get("SECRET_KEY", None)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -56,7 +53,8 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware'
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'SciAuth.logging.LogSetupMiddleware',
 ]
 
 ROOT_URLCONF = 'SciAuth.urls'
@@ -165,31 +163,53 @@ ADMIN = [('SITE-ADMIN', os.environ.get("SITE_ADMIN"))]
 
 LOGGING = {
     'version': 1,
-    'handlers': {
+    'disable_existing_loggers': False,
+    'formatters': {
         'console': {
-            'class': 'logging.StreamHandler',
-            'stream': sys.stdout,
+            'format': '[%(asctime)s][%(levelname)s][%(name)s.%(funcName)s:%(lineno)d]'
+                      '[%(username)s][%(userid)s] - %(message)s',
         },
-        'file_debug': {
+    },
+    'filters': {
+        # Add an unbound RequestFilter.
+        'request': {
+            '()': 'SciAuth.logging.RequestFilter',
+        },
+    },
+    'handlers': {
+        'sentry': {
+            'level': 'ERROR', # To capture more than ERROR, change to WARNING, INFO, etc.
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+            'tags': {'custom-tag': 'x'},
+        },
+        'console': {
             'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': 'debug.log',
+            'class': 'logging.StreamHandler',
+            'formatter': 'console',
+            'stream': sys.stdout,
+            'filters': ['request'],
         },
-        'file_error': {
-            'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': 'error.log',
-        }
     },
     'root': {
-        'handlers': ['console', 'file_debug'],
-        'level': 'DEBUG'
+        'handlers': ['console'],
+        'level': 'DEBUG',
+        'filters': ['request'],
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file_error'],
-            'level': 'ERROR',
+            'handlers': ['console'],
+            'level': 'WARNING',
             'propagate': True,
+        },
+        'raven': {
+            'level': 'WARNING',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'sentry.errors': {
+            'level': 'WARNING',
+            'handlers': ['console'],
+            'propagate': False,
         },
     },
 }

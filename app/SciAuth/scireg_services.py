@@ -14,7 +14,7 @@ def send_confirmation_email(user_jwt, success_url, project):
 
     # Build the email confirmation link
     send_confirm_email_url = settings.SCIREG_URL + '/api/register/send_confirmation_email/'
-    logger.debug("[SciAuth][scireg_services.send_confirmation_email] - Sending user confirmation e-mail to " + send_confirm_email_url)
+    logger.debug("Sending user confirmation e-mail to " + send_confirm_email_url)
 
     # Inform SciReg of the project and where to send the user
     email_confirm_data = {

@@ -29,11 +29,10 @@ def auth(request):
     This URL is a catch-all to see if a user is already logged in. The next Querystring should be set to
     redirect if the user is found to be logged in, or after they log in.
     """
-
-    logger.debug("[SCIAUTH][DEBUG][auth] - Checking if user is logged in already.")
+    logger.debug("Checking if user is logged in already.")
 
     if request.user.is_authenticated() and request.COOKIES.get("DBMI_JWT", None) is not None:
-        logger.debug("[SCIAUTH][DEBUG][auth] - Logged in, forward along.")
+        logger.debug("Logged in, forward along.")
 
         redirect_url = request.GET.get("next", settings.AUTH0_SUCCESS_URL)
         return redirect(redirect_url)
@@ -52,19 +51,22 @@ def auth(request):
     query = base64.urlsafe_b64encode(request.META.get('QUERY_STRING').encode('utf-8')).decode('utf-8')
     return_url.query.params.add('query', query)
 
-    logger.debug('[login][views.auth] Return URL: {}'.format(return_url.url))
+    logger.debug('Return URL: {}'.format(return_url.url))
 
     # Add to the context.
     context['return_url'] = return_url.url
 
     # Check for a project id.
     project_id = request.GET.get('project', None)
+    logger.debug("Login screen for project: {}".format(project_id))
     if project_id is not None:
 
         try:
             # Query authz for the project details.
             response = get_sciauthz_project(project_id)
             project = response.json()
+
+            logger.debug("Project lookup: {}".format(project))
 
             # Add the title and description to the context.
             context['project'] = project_id
@@ -73,10 +75,10 @@ def auth(request):
             context['project_icon_url'] = project.get('icon_url', None)
 
         except (requests.ConnectionError, ValueError):
-            logger.error("[SCIAUTH][ERROR][auth] - SciAuthZ project lookup failed")
+            logger.error("SciAuthZ project lookup failed")
 
     else:
-        logger.debug("[SCIAUTH][DEBUG][auth] - No project identifier passed")
+        logger.debug("No project identifier passed")
 
     return render(request, 'login/auth.html', context)
 
@@ -88,8 +90,7 @@ def callback_handling(request):
     This endpoint is called by auth0 with a code that lets us know the user logged into their Identity Provider successfully.
     We need to use the code to gather the user information from Auth0 and establish the DBMI_JWT cookie.
     """
-
-    logger.debug("[SCIAUTH][DEBUG][callback_handling] - Call returned from Auth0.")
+    logger.debug("Call returned from Auth0.")
 
     # This is a code passed back from Auth0 that is used to retrieve a token (Which is used to retrieve user info).
     code = request.GET.get('code', '')
@@ -120,7 +121,7 @@ def callback_handling(request):
 
     # Check for an existing user
     new_user = User.objects.filter(username=user_info['email']).count() == 0
-    logger.debug('[login][views.callback_handling] New user? {}'.format(new_user))
+    logger.debug('New user? {}'.format(new_user))
 
     # We're saving all user information into the session
     request.session['profile'] = user_info
@@ -128,6 +129,8 @@ def callback_handling(request):
 
     # If everything is good and we have the user info we can proceed.
     if user:
+        logger.debug("User is good, proceeding")
+
         # Log the user into the SciAuth Django App.
         login(request, user)
 
@@ -137,11 +140,11 @@ def callback_handling(request):
         try:
             # Get the original query string
             query = QueryDict(base64.urlsafe_b64decode(request.GET.get('query').encode('utf-8')).decode('utf-8'))
-            logger.debug('[login][views.callback_handling] Original query: {}'.format(query))
+            logger.debug('Original query: {}'.format(query))
         except Exception as e:
             # Use an empty query dict
             query = QueryDict()
-            logger.exception('[login][views.callback_handling] Parsing of original query failed: {}'.format(e))
+            logger.exception(e)
 
         # Get the project, if any.
         project = query.get('project', 'hms')
@@ -153,27 +156,33 @@ def callback_handling(request):
 
                 # Start email verification
                 response = scireg_services.send_confirmation_email(jwt, email_confirm_success_url, project)
-                logger.debug('[login][views.callback_handling] Email confirmation response: {}: {}'
+                logger.debug('Email confirmation response: {}: {}'
                              .format(response.status_code, response.content))
 
         except Exception as e:
-            logger.exception('[login][views.callback_handling] New user/email verification failed: {}'.format(e))
+            logger.exception(e)
 
         # Redirect the user to the page they originally requested.
         redirect_url = query.get('next', settings.AUTH0_SUCCESS_URL)
+        logger.debug('Redirecting user to: {}'.format(redirect_url))
+
         response = redirect(redirect_url)
 
         # Set the JWT into a cookie in the response.
         response.set_cookie('DBMI_JWT', jwt, domain=settings.COOKIE_DOMAIN, httponly=True)
 
-        logger.debug("[SCIAUTH][DEBUG][callback_handling] - User logged in, returning.")
+        logger.debug("User logged in, returning.")
 
         return response
+
+    else:
+        logger.error("User is NOT good")
 
     return HttpResponse(status=400)
 
 @csrf_exempt
 def validate_jwt(request):
+    logger.debug("Validating JWT")
 
     jwt_to_validate = request.POST.get('jwt', '')
 
@@ -190,11 +199,14 @@ def validate_jwt(request):
 
             response_data = {"status": "VALID"}
 
-        except jwt.InvalidTokenError as err:
+        except jwt.InvalidTokenError:
+            logger.error("JWT token is invalid")
             response_data = {"stauts": "INVALID"}
-        except jwt.ExpiredSignatureError as err:
+        except jwt.ExpiredSignatureError:
+            logger.error("JWT token expired")
             response_data = {"status": "EXPIRED_SIGNATURE"}
     else:
+        logger.error("JWT token is missing")
         response_data = {"status": "NO_JWT"}
 
     return JsonResponse(response_data)
@@ -207,9 +219,11 @@ def logout_view(request):
 
     This endpoint logs out the user session from the SciAuth Django app.
     """
+    logger.debug("User is logging out, redirecting to: {}".format(settings.AUTH0_LOGOUT_URL))
     logout(request)
     return redirect(settings.AUTH0_LOGOUT_URL)
 
 @user_auth_and_jwt
 def landingpage(request):
+    logger.debug("Landing page")
     return render(request, 'login/landingpage.html')

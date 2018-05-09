@@ -56,29 +56,29 @@ def auth(request):
     # Add to the context.
     context['return_url'] = return_url.url
 
-    # Check for a project id.
-    project_id = request.GET.get('project', None)
-    logger.debug("Login screen for project: {}".format(project_id))
-    if project_id is not None:
+    # Check for a branding dict
+    project_branding = request.GET.get('branding', None)
+    if project_branding:
 
         try:
-            # Query authz for the project details.
-            response = get_sciauthz_project(project_id)
-            project = response.json()
+            # Decode it
+            branding_json = base64.urlsafe_b64decode(project_branding.encode('utf-8')).decode('utf-8')
+            project = json.loads(branding_json)
 
-            logger.debug("Project lookup: {}".format(project))
+            logger.debug("Project branding: {}".format(project))
 
             # Add the title and description to the context.
-            context['project'] = project_id
+            context['project'] = project.get('id', None)
             context['project_title'] = project.get('title', None)
             context['project_description'] = project.get('description', None)
             context['project_icon_url'] = project.get('icon_url', None)
 
-        except (requests.ConnectionError, ValueError):
-            logger.error("SciAuthZ project lookup failed")
+        except Exception as e:
+            logger.exception(e)
+            logger.error("Project branding parsing failed")
 
     else:
-        logger.debug("No project identifier passed")
+        logger.debug("No project identifier/branding passed")
 
     return render(request, 'login/auth.html', context)
 

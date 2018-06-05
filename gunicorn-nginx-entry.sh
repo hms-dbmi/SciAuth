@@ -5,6 +5,7 @@ ALLOWED_HOSTS=$(aws ssm get-parameters --names $PS_PATH.allowed_hosts --with-dec
 DJANGO_SECRET=$(aws ssm get-parameters --names $PS_PATH.django_secret --with-decryption --region us-east-1 | jq -r '.Parameters[].Value')
 AUTH0_DOMAIN_VAULT=$(aws ssm get-parameters --names $PS_PATH.auth0_domain --with-decryption --region us-east-1 | jq -r '.Parameters[].Value')
 AUTH0_CLIENT_ID_VAULT=$(aws ssm get-parameters --names $PS_PATH.auth0_client_id --with-decryption --region us-east-1 | jq -r '.Parameters[].Value')
+AUTH0_CLIENT_ID_LIST=$(aws ssm get-parameters --names $PS_PATH.auth0_client_id_list --with-decryption --region us-east-1 | jq -r '.Parameters[].Value')
 AUTH0_SECRET_VAULT=$(aws ssm get-parameters --names $PS_PATH.auth0_secret --with-decryption --region us-east-1 | jq -r '.Parameters[].Value')
 AUTH0_CALLBACK_URL_VAULT=$(aws ssm get-parameters --names $PS_PATH.auth0_callback_url --with-decryption --region us-east-1 | jq -r '.Parameters[].Value')
 AUTH0_SUCCESS_URL_VAULT=$(aws ssm get-parameters --names $PS_PATH.auth0_success_url --with-decryption --region us-east-1 | jq -r '.Parameters[].Value')
@@ -23,6 +24,7 @@ export ALLOWED_HOSTS
 export SECRET_KEY=$DJANGO_SECRET
 export AUTH0_DOMAIN=$AUTH0_DOMAIN_VAULT
 export AUTH0_CLIENT_ID=$AUTH0_CLIENT_ID_VAULT
+export AUTH0_CLIENT_ID_LIST=$AUTH0_CLIENT_ID_LIST
 export AUTH0_SECRET=$AUTH0_SECRET_VAULT
 export AUTH0_CALLBACK_URL=$AUTH0_CALLBACK_URL_VAULT
 export AUTH0_SUCCESS_URL=$AUTH0_SUCCESS_URL_VAULT

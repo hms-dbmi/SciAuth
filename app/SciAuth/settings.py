@@ -144,7 +144,13 @@ STATICFILES_FINDERS = (
 # App Specific
 LOGIN_URL = '/login/auth'
 AUTH0_DOMAIN = os.environ.get("AUTH0_DOMAIN")
+
+# SciAuth currently only supports one Auth0 Client ID which is used in views.py.
 AUTH0_CLIENT_ID = os.environ.get("AUTH0_CLIENT_ID")
+
+# But py-auth0-jwt still needs the variable in a list form
+AUTH0_CLIENT_ID_LIST = os.environ.get("AUTH0_CLIENT_ID_LIST").split(",")
+
 AUTH0_SECRET = os.environ.get("AUTH0_SECRET")
 AUTH0_CALLBACK_URL = os.environ.get("AUTH0_CALLBACK_URL")
 AUTH0_SUCCESS_URL = os.environ.get("AUTH0_SUCCESS_URL")

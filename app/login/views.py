@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 from django.conf import settings
 from django.http import HttpResponse, QueryDict
 from django.contrib.auth.models import User
@@ -93,7 +93,23 @@ def callback_handling(request):
     logger.debug("Call returned from Auth0.")
 
     # This is a code passed back from Auth0 that is used to retrieve a token (Which is used to retrieve user info).
-    code = request.GET.get('code', '')
+    code = request.GET.get('code')
+    if not code:
+        logger.error('Auth0 returned no code: {}'.format(request.GET))
+
+        # Check for error descriptors
+        if request.GET.get('error'):
+            logger.error('Auth0 error: {}'.format(request.GET.get('error')))
+        if request.GET.get('error_description'):
+            logger.error('Auth0 error description: {}'.format(request.GET.get('error_description')))
+
+        # Get the original query sent to SciAuth
+        query = QueryDict(base64.urlsafe_b64decode(request.GET.get('query').encode('utf-8')).decode('utf-8'))
+        url = reverse('auth') + '?{}'.format(query.urlencode('/'))
+        logger.debug('Redirect back to SciAuth: {}'.format(url))
+
+        # Redirect back to the auth screen and attach the original query
+        return redirect(url)
 
     json_header = {'content-type': 'application/json'}
 

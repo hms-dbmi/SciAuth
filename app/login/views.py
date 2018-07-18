@@ -70,7 +70,6 @@ def auth(request):
             # Add the title and description to the context.
             context['project'] = project.get('id', None)
             context['project_title'] = project.get('title', None)
-            context['project_description'] = project.get('description', None)
             context['project_icon_url'] = project.get('icon_url', None)
 
         except Exception as e:

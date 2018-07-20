@@ -246,6 +246,7 @@ RAVEN_CONFIG = {
     # If you are using git, you can also automatically configure the
     # release based on the git info.
     'release': '1',
+    'site': 'SCIAUTH'
 }
 
 try:

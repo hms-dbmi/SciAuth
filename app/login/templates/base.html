@@ -1,92 +1,58 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/html">
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>{%block title%}{%endblock%}</title>
+    <title>{% block title %}HMS DBMI Login{% endblock %}</title>
 
+    {% load staticfiles %}
+    {% load static %}
     {% load bootstrap3 %}
 
     {% bootstrap_css %}
-    {% bootstrap_javascript jquery=1 %}
+    {% bootstrap_javascript %}
+
+    {% block includes %}{% endblock %}
 
     <style>
-        .footer {
+
+        body {
+            background-color: crimson;
+        }
+
+        .navbar {
+            height: 105px;
+            margin-bottom: 50px;
+        }
+
+        .navbar-brand {
+          transform: translateX(-50%);
+          left: 50%;
           position: absolute;
-          bottom: 0;
-          width: 100%;
-          height: 60px;
-          background-color: white;
-        }
-
-        .page-header {
-            margin-top: 0px;
-            border-bottom: 5px solid black;
-        }
-
-        .lead {
-            margin-bottom: 0px;
-            padding-top: 10px;
-        }
-
-        .container {
-
-         }
-
-         .project-panel {
-            max-width: 300px;
-            padding: 0 15px;
-            margin: 0 auto 20px auto;
-         }
-
-         .project-panel h1 {
-            text-align: center;
-            font-size: 24px;
-         }
-
-         .project-panel .icon {
-            text-align: center;
-            margin: 10px 0;
-         }
-
-         .project-panel .icon img {
-            height: 75px;
-         }
-
-         .project-panel {
-            border-radius: 6px;
-         }
-
-        @media (min-width: 768px) {
-
-            .project-panel {
-                max-width: none;
-            }
-
         }
 
     </style>
 
 </head>
+    <body>
 
-{% load static %}
-
-<body style="background-color: crimson;">
-
-    <div class="page-header" style="background-color: white;">
-
-            <div class="row">
-                <div class="col-md-4"></div>
-                <div class="col-md-4 text-center lead">DEPARTMENT OF BIOMEDICAL INFORMATICS</div>
-                <div class="col-md-4"></div>
+        <nav id="nav-bar" class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="center-block">
+                        <div class="navbar-header">
+                            <a class="navbar-brand" href="https://dbmi.hms.harvard.edu"><img height="70" src="{% static 'hms_dbmi_logo.png' %}" /></a>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </nav>
 
-    </div>
+        <div id="container" class="container">
+            {% block content %}{% endblock %}
+        </div>
 
-    {%block content%}{%endblock%}
+        {% block javascript %}{% endblock %}
 
-    <footer class="footer lead" style="text-align: center;">
-
-    </footer>
-
-</body>
+    </body>
 </html>

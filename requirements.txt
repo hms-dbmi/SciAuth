@@ -1,0 +1,10 @@
+Django==1.10.8
+django-bootstrap3==11.0.0
+django-health-check==3.7.0
+furl==1.2.1
+httmock==1.2.6
+mock==2.0.0
+py-auth0-jwt==0.3.2
+raven==6.9.0
+requests==2.19.1
+six==1.11.0

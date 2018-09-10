@@ -7,9 +7,9 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model, get_user
 
-from SciAuth import settings
-from .views import auth, logout_view, logout, landingpage
-from .sciauthz_services import get_sciauthz_project
+from dbmiauth import settings
+from .views import auth, logout_view, landingpage
+from .dbmiauthz_services import get_dbmiauthz_project
 
 """
 Declare data to mimic that being consumed by the app
@@ -374,7 +374,7 @@ class LoginViewTestCase(TestCase):
 
 class SciAuthZServicesTestCase(TestCase):
 
-    def test_sciauthz_get_project(self):
+    def test_dbmiauthz_get_project(self):
 
         # Setup the mock.
         @all_requests
@@ -398,7 +398,7 @@ class SciAuthZServicesTestCase(TestCase):
         with HTTMock(mock_authz):
 
             # Make the call.
-            response = get_sciauthz_project(TestProject.identifier)
+            response = get_dbmiauthz_project(TestProject.identifier)
 
             # Form the data.
             project = response.json()
@@ -408,7 +408,7 @@ class SciAuthZServicesTestCase(TestCase):
             self.assertEqual(TestProject.description, project['description'])
             self.assertEqual(TestProject.icon_url, project['icon_url'])
 
-    def test_sciauthz_get_project_invalid(self):
+    def test_dbmiauthz_get_project_invalid(self):
 
         # Setup the mock.
         @all_requests
@@ -427,7 +427,7 @@ class SciAuthZServicesTestCase(TestCase):
         with HTTMock(mock_authz):
 
             # Make the call.
-            response = get_sciauthz_project('dwahouidhwd')
+            response = get_dbmiauthz_project('dwahouidhwd')
 
             # Form the data.
             project = response.json()
@@ -435,7 +435,7 @@ class SciAuthZServicesTestCase(TestCase):
             # Check it.
             self.assertDictEqual(project, {})
 
-    def test_sciauthz_get_project_invalid_response(self):
+    def test_dbmiauthz_get_project_invalid_response(self):
 
         # Setup the mock.
         @all_requests
@@ -454,7 +454,7 @@ class SciAuthZServicesTestCase(TestCase):
         with HTTMock(mock_authz):
 
             # Make the call.
-            response = get_sciauthz_project('dwahouidhwd')
+            response = get_dbmiauthz_project('dwahouidhwd')
 
             # Form the data.
             project = response.json()
@@ -462,12 +462,12 @@ class SciAuthZServicesTestCase(TestCase):
             # Check it.
             self.assertDictEqual(project, {})
 
-    def test_sciauthz_get_project_error(self):
+    def test_dbmiauthz_get_project_error(self):
 
         # Make the call with no mock or intercept.
         with self.assertRaises(requests.ConnectionError):
 
-            get_sciauthz_project('dwahouidhwd')
+            get_dbmiauthz_project('dwahouidhwd')
 
 
 @mock.patch('pyauth0jwt.auth0authenticate.validate_jwt', lambda x: TestUser.token)

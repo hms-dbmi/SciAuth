@@ -1,4 +1,4 @@
-# SciAuth
+# dbmiauth
 
 This Django app is a simple implementation of the Auth0 integration.
 
@@ -21,14 +21,11 @@ AUTH0_LOGOUT_URL = os.environ.get("AUTH0_LOGOUT_URL")
 
 ### Other configs
 ~~~python
-# This forces Django to use the custom backend we wrote for Auth0.
-AUTHENTICATION_BACKENDS = ('login.auth0authenticate.Auth0Authentication', 'django.contrib.auth.backends.ModelBackend')
-
 # This restricts the cookies we create to the dbmi subdomain.
 COOKIE_DOMAIN = ".dbmi.hms.harvard.edu"
 
 # Django config, move this to an ENV in the future
-ALLOWED_HOSTS = ['authentication.aws.dbmi.hms.harvard.edu']
+ALLOWED_HOSTS = ['authentication.dbmi.hms.harvard.edu']
 
 # The e-mail address of the site administrator.
 ADMIN = [('SITE-ADMIN', os.environ.get("SITE_ADMIN"))]

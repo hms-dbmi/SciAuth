@@ -1,37 +1,36 @@
-FROM python:3.6-slim
+FROM python:3.6-alpine AS builder
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        nginx \
-        jq \
-        curl \
-        openssl \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install some pip packages
-RUN pip install awscli boto3 gunicorn shinto-cli dumb-init
+# Install dependencies
+RUN apk add --update \
+    build-base \
+    g++ \
+    openssl-dev \
+    libffi-dev
 
 # Add requirements
 ADD requirements.txt /requirements.txt
 
-# Build and install python requirements
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    libssl-dev g++ \
-    && pip install -r /requirements.txt && \
-    apt-get remove --purge -y g++ libssl-dev \
-    && apt-get clean && \
-    rm -rf /var/lib/apt/lists/* \
-    && apt-get autoremove -y
+# Install Python packages
+RUN pip install -r /requirements.txt
 
-# Copy templates
-ADD docker-entrypoint-templates.d/ /docker-entrypoint-templates.d/
+FROM hmsdbmitc/dbmisvc:3.6-alpine
 
-# Setup entry scripts
-ADD docker-entrypoint-init.d/ /docker-entrypoint-init.d/
-ADD docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod a+x docker-entrypoint.sh
+RUN apk add --no-cache --update \
+    bash \
+    nginx \
+    curl \
+    openssl \
+    jq \
+  && rm -rf /var/cache/apk/*
+
+# Copy pip packages from builder
+COPY --from=builder /root/.cache /root/.cache
+
+# Add requirements
+ADD requirements.txt /requirements.txt
+
+# Install Python packages
+RUN pip install -r /requirements.txt
 
 # Copy app source
 COPY /app /app
@@ -42,21 +41,12 @@ ENV DBMI_ENV=prod
 # Set app parameters
 ENV DBMI_PARAMETER_STORE_PREFIX=dbmi.auth.${DBMI_ENV}
 ENV DBMI_PARAMETER_STORE_PRIORITY=true
-ENV DBMI_AWS_REGION=us-east-1
 
 # App config
-ENV DBMI_APP_ROOT=/app
 ENV DBMI_APP_DOMAIN=authentication.dbmi.hms.harvard.edu
 
 # Load balancing
 ENV DBMI_LB=true
-ENV DBMI_APP_HEALTHCHECK_PATH=/healthcheck
-
-# Set nginx and network parameters
-ENV DBMI_GUNICORN_PORT=8000
-ENV DBMI_PORT=443
-ENV DBMI_NGINX_USER=www-data
-ENV DBMI_NGINX_PID_PATH=/var/run/nginx.pid
 
 # SSL and load balancing
 ENV DBMI_SSL=true
@@ -70,9 +60,6 @@ ENV DBMI_APP_STATIC_ROOT=/app/assets
 
 # Healthchecks
 ENV DBMI_HEALTHCHECK=true
-ENV DBMI_HEALTHCHECK_PATH=/healthcheck
 
-ENTRYPOINT ["dumb-init", "/docker-entrypoint.sh"]
-
-CMD gunicorn dbmiauth.wsgi:application -b 0.0.0.0:${DBMI_GUNICORN_PORT} \
-    --user ${DBMI_NGINX_USER} --group ${DBMI_NGINX_USER} --chdir=${DBMI_APP_ROOT}
+# Set the name of the app to run
+ENV DBMI_APP_WSGI=dbmiauth

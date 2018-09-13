@@ -40,6 +40,19 @@ if [[ -n "$DBMI_CREATE_SSL" ]]; then
     openssl req -new -key "${DBMI_SSL_PATH}/${DBMI_APP_DOMAIN}.key" -out "${DBMI_SSL_PATH}/${DBMI_APP_DOMAIN}.csr" -passin pass:${passphrase} -subj "/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$commonname/emailAddress=$email"
     openssl x509 -req -days 365 -in "${DBMI_SSL_PATH}/${DBMI_APP_DOMAIN}.csr" -signkey "${DBMI_SSL_PATH}/${DBMI_APP_DOMAIN}.key" -out "${DBMI_SSL_PATH}/${DBMI_APP_DOMAIN}.crt"
 
+    # Also create a wildcard certificate for errant requests
+    passphrase="$(openssl rand -base64 15)"
+    commonname="*"
+    country=US
+    state=Massachusetts
+    locality=Boston
+    organization=Nothing
+    organizationalunit=Default
+    email=nothing@default.com
+    openssl genrsa -out "${DBMI_SSL_PATH}/default.key" 2048
+    openssl req -new -key "${DBMI_SSL_PATH}/default.key" -out "${DBMI_SSL_PATH}/default.csr" -passin pass:${passphrase} -subj "/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$commonname/emailAddress=$email"
+    openssl x509 -req -days 365 -in "${DBMI_SSL_PATH}/default.csr" -signkey "${DBMI_SSL_PATH}/default.key" -out "${DBMI_SSL_PATH}/default.crt"
+
 fi
 
 # Setup the nginx and site configuration

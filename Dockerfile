@@ -1,4 +1,4 @@
-FROM python:3.6-alpine AS builder
+FROM python:3.6-alpine3.8 AS builder
 
 # Install dependencies
 RUN apk add --update \
